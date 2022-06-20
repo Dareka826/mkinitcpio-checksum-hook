@@ -1,0 +1,22 @@
+#!/usr/bin/ash
+
+GRUB_PATH="EFI/grub/grubx64.efi"
+HASH_PATH="/grub-hash.sha512"
+EFI_PATH="/dev/disk/by-partuuid/#####"
+
+run_hook() {
+    printf "\nBoot settings:\n"
+    efibootmgr --verbose
+
+    printf "\nVerify integrity:\n"
+    SUM_OLD="$(cat "${HASH_PATH}")"
+    printf "%s\n" "${SUM_OLD}"
+
+    TMP_DIR="$(mktemp -d)"
+    mount -o ro "${EFI_PATH}" "${TMP_DIR}"
+    SUM_NEW="$(sha512sum "${TMP_DIR}/${GRUB_PATH}" | awk '{ print $1 }')"
+    umount "${TMP_DIR}"
+    printf "%s\n\n" "${SUM_NEW}"
+
+    [ "${SUM_NEW}" = "${SUM_OLD}" ] || exit 1
+}

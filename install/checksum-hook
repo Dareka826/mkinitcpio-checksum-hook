@@ -1,0 +1,25 @@
+#!/bin/bash
+
+GRUB_PATH="EFI/grub/grubx64.efi"
+HASH_PATH="/grub-hash.sha512"
+
+build() {
+    add_binary 'sha512sum'
+    add_binary 'awk'
+    add_binary 'efibootmgr'
+
+    add_binary 'mktemp'
+    add_module 'vfat'
+
+    TMP_FILE="$(mktemp)"
+    sha512sum "/efi/${GRUB_PATH}" | awk '{ print $1 }' > "${TMP_FILE}"
+    add_file "${TMP_FILE}" "${HASH_PATH}"
+
+    add_runscript
+}
+
+help() {
+    cat <<HELPEOF
+This hook verifies the checksum of the grub efi executable and displays current efi boot configuration.
+HELPEOF
+}

@@ -18,5 +18,9 @@ run_hook() {
     umount "${TMP_DIR}"
     printf "%s\n\n" "${SUM_NEW}"
 
-    [ "${SUM_NEW}" = "${SUM_OLD}" ] || exit 1
+    [ "${SUM_NEW}" = "${SUM_OLD}" ] || {
+        printf "\n======================\n"
+        printf   "= CHECKSUM MISMATCH! =\n"
+        printf   "======================\n\n"
+    }
 }
